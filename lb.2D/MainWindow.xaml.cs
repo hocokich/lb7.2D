@@ -16,7 +16,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 
-namespace lb._2D
+namespace Clock
 {
     /// <summary>
     /// Логика взаимодействия для MainWindow.xaml
@@ -27,70 +27,161 @@ namespace lb._2D
         {
             InitializeComponent();
 
-            //Время
-            Clock = new System.Windows.Threading.DispatcherTimer();
-            //назначение обработчика события Тик
-            Clock.Tick += new EventHandler(tick);
-            //TimeSpan – переменная для хранения времени в формате часы/минуты/секунды
-            Clock.Interval = new TimeSpan(0, 0, 1);
+            Clock.Interval = new TimeSpan(0, 0, 0, 0, 1);
+            Clock.Tick += tick;
+            
         }
 
-        //stopwatch
-        System.Windows.Threading.DispatcherTimer Clock;
 
+        DispatcherTimer Clock = new DispatcherTimer();
 
-        int i = 0;
+        double RotateS;
+        double RotateM;
+        double RotateH;
         void tick(object sender, EventArgs e)
         {
+            bool zero = false;
+
+            //Получаем текущее время на компьютере
+            if (zero == false){
+                DateTime current = DateTime.Now;
+                RotateH = current.Hour * 30;
+                RotateM = current.Minute * 6;
+                RotateS = current.Second * 6;
+
+                //Вращаем стрелки часов
+                Second.RenderTransform = new RotateTransform(RotateS, 1, 170);
+                Minute.RenderTransform = new RotateTransform(RotateM, 1, 170);
+                Hour.RenderTransform = new RotateTransform(RotateH, 1, 100);
+            }
+            //Вращаем стрелки часов c 0-ой позиции
+            if(zero == true){
+                RotateS += 0.1;
+
+                Second.RenderTransform = new RotateTransform(RotateS, 1, 170);
+
+                if(RotateS >= 360)
+                {
+                    RotateS = 0;
+                    RotateM += 6;
+
+                    Minute.RenderTransform = new RotateTransform(RotateM, 1, 170);
+                }
+
+                if (RotateM >= 360)
+                {
+                    RotateM = 0;
+                    RotateH += 30;
+
+                    Hour.RenderTransform = new RotateTransform(RotateH, 1, 100);
+                }
+            }
+
+        } 
+
+        Line Hour;
+        Line HourShape()
+        {
             //создание объекта линия
-            Line myLine1 = new Line();
-            if (i == 0){
-                //установка цвета линии
-                myLine1.Stroke = System.Windows.Media.Brushes.Black;
-                //координаты начала линии
-                myLine1.X1 = 100;
-                myLine1.Y1 = 100;
-                //координаты конца линии
-                myLine1.X2 = 1;
-                myLine1.Y2 = 1;
+            Line myLine = new Line();
+            //установка цвета линии
+            myLine.Stroke = System.Windows.Media.Brushes.Black;
 
-                //параметры выравнивания в сцене
-                myLine1.HorizontalAlignment = HorizontalAlignment.Left;
-                myLine1.VerticalAlignment = VerticalAlignment.Center;
-                //толщина линии
-                myLine1.StrokeThickness = 2;
-                //добавление линии в сцену
-                scene.Children.Add(myLine1);
-                i++;
-                return;
-            }
-            if (i == 1)
-            {
-                scene.Children.Remove(myLine1);
-                Line myLine2 = new Line();
+            //координаты начала линии
+            myLine.X1 = 1;
+            myLine.Y1 = 1;
+            //координаты конца линии
+            myLine.X2 = 1;
+            myLine.Y2 = 110;
 
-                //установка цвета линии
-                myLine2.Stroke = System.Windows.Media.Brushes.Black;
-                //координаты начала линии
-                myLine2.X1 = 1;
-                myLine2.Y1 = 100;
-                //координаты конца линии
-                myLine2.X2 = 100;
-                myLine2.Y2 = 100;
+            myLine.Margin = new Thickness(300, 185, 300, 100);
 
-                //параметры выравнивания в сцене
-                myLine2.HorizontalAlignment = HorizontalAlignment.Left;
-                myLine2.VerticalAlignment = VerticalAlignment.Center;
-                //толщина линии
-                myLine2.StrokeThickness = 2;
-                scene.Children.Add(myLine2);
-            }
-
+            //толщина линии
+            myLine.StrokeThickness = 6;
+            //добавление линии в сцену
+            return myLine;
         }
-        void circle()
+
+        Line Minute;
+        Line MinuteShape()
+        {
+            //создание объекта линия
+            Line myLine = new Line();
+            //установка цвета линии
+            myLine.Stroke = System.Windows.Media.Brushes.Black;
+
+            //координаты начала линии
+            myLine.X1 = 1;
+            myLine.Y1 = 1;
+            //координаты конца линии
+            myLine.X2 = 1;
+            myLine.Y2 = 180;
+
+            myLine.Margin = new Thickness(300, 115, 300, 100);
+
+            //толщина линии
+            myLine.StrokeThickness = 3;
+            //добавление линии в сцену
+            return myLine;
+        }
+
+        Line Second;
+        Line SecondShape()
+        {
+            //создание объекта линия
+            Line myLine = new Line();
+            //установка цвета линии
+            myLine.Stroke = System.Windows.Media.Brushes.Red;
+
+            //координаты начала линии
+            myLine.X1 = 1;
+            myLine.Y1 = 1;
+            //координаты конца линии
+            myLine.X2 = 1;
+            myLine.Y2 = 180;
+
+            myLine.Margin = new Thickness(300, 115, 300, 100);
+
+            //толщина линии
+            myLine.StrokeThickness = 2;
+            //добавление линии в сцену
+            return myLine;
+        }
+
+        Ellipse Dial()
         {
             //создание объекта овал
             Ellipse myEllipse = new Ellipse();
+            //кисть для заполнения прямоугольника изображением
+            ImageBrush ib = new ImageBrush();
+            //позиция изображения будет указана как координаты левого верхнего угла
+            //изображение будет растянуто по размерам прямоугольника, описанного вокруг фигуры
+            ib.AlignmentX = AlignmentX.Left;
+            ib.AlignmentY = AlignmentY.Top;
+            //загрузка изображения и назначение кисти
+            ib.ImageSource = new BitmapImage(new Uri(@"pack://application:,,,/Pic/clock dial.jpg", UriKind.Absolute));
+            myEllipse.Fill = ib;
+
+
+            //толщина и цвет обводки
+            myEllipse.StrokeThickness = 2;
+            myEllipse.Stroke = Brushes.Black;
+
+            //размеры овала
+            myEllipse.Width = 400;
+            myEllipse.Height = 400;
+
+            //позиция овала
+            myEllipse.Margin = new Thickness(100, 80, 100, 80);
+            
+            return myEllipse;
+        }
+
+        Ellipse Dot()
+        {
+            //создание объекта овал
+            Ellipse myEllipse = new Ellipse();
+
             //создание объекта кисть
             SolidColorBrush mySolidColorBrush = new SolidColorBrush();
             //установка цвета в виде сочетания компонент ARGB (alpha, red, green, blue)
@@ -98,42 +189,41 @@ namespace lb._2D
             //установка объекта кисти в параметр заливки объекта овал
             myEllipse.Fill = mySolidColorBrush;
             //толщина и цвет обводки
+
+
+            //толщина и цвет обводки
             myEllipse.StrokeThickness = 2;
             myEllipse.Stroke = Brushes.Black;
-            //размеры овала
-            myEllipse.Width = 100;
-            myEllipse.Height = 100;
-            //позиция овала
-            myEllipse.Margin = new Thickness(50, 50, 0, 0);
-            //добавление овала в сцену
-            scene.Children.Add(myEllipse);
 
-            //создание объекта овал
-            Ellipse myEllipse1 = new Ellipse();
-            //создание объекта кисть
-            SolidColorBrush mySolidColorBrush1 = new SolidColorBrush();
-            //установка цвета в виде сочетания компонент ARGB (alpha, red, green, blue)
-            mySolidColorBrush1.Color = Color.FromArgb(255, 255, 0, 0);
-            //установка объекта кисти в параметр заливки объекта овал
-            myEllipse1.Fill = mySolidColorBrush1;
-            //толщина и цвет обводки
-            myEllipse1.StrokeThickness = 2;
-            myEllipse1.Stroke = Brushes.Black;
             //размеры овала
-            myEllipse1.Width = 90;
-            myEllipse1.Height = 90;
-            //позиция овала
-            myEllipse1.Margin = new Thickness(50, 50, 0, 0);
-            //добавление овала в сцену
-            scene.Children.Add(myEllipse1);
+            myEllipse.Width = 10;
+            myEllipse.Height = 10;
 
+            //позиция овала
+            myEllipse.Margin = new Thickness(297, 280, 300, 100);
+
+            return myEllipse;
         }
+
 
         private void make_Click(object sender, RoutedEventArgs e)
         {
-            //Clock.Start();
+            Hour = HourShape();
+            Minute = MinuteShape();
+            Second = SecondShape();
 
-            circle();
+            scene.Children.Add(Dial());
+
+            scene.Children.Add(Hour);
+            scene.Children.Add(Minute);
+            scene.Children.Add(Second);
+
+            //scene.Children.Add(Dot());
+
+            Clock.Start();
+
+            make.IsEnabled = false;
         }
+
     }
 }
